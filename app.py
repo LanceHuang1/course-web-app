@@ -161,7 +161,6 @@ def main():
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
             "height": 700,
-            "scrolling": True  # Enable scrolling for long events
             "eventColor": "#C9DAF8",  # 事件顏色設定
             "eventTextColor": "#000000",  # 事件文字顏色設定
             "eventBorderColor": "#C9DAF8",  # 邊框顏色
