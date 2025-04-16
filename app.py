@@ -163,6 +163,13 @@ def main():
             },
             "height": 700,
             "scrolling": True  # Enable scrolling for long events
+            "eventColor": "#C9DAF8",  # 事件顏色設定
+            "eventTextColor": "#000000",  # 事件文字顏色設定
+            "eventBorderColor": "#C9DAF8",  # 邊框顏色
+            "eventDurationEditable": True,  # 允許修改事件時間
+            "firstDay": 1,  # 設置星期一為每週的第一天
+            "aspectRatio": 1.5,  # 調整日曆格的長寬比
+            "eventClassNames": ["custom-event"],  # 自定義事件樣式類
         }
         calendar(events=events, options=calendar_options)
 
