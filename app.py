@@ -25,7 +25,6 @@ def str_to_datetime(s):
     return datetime.strptime(s, "%Y/%m/%d %H:%M")
 
 def get_color(course_name):
-    # 依課程名稱決定顏色 (淡色系)
     colors = [
         "#CFE2F3", "#D9EAD3", "#FFF2CC", "#FCE5CD", "#EAD1DC",
         "#D0E0E3", "#F4CCCC", "#F9CB9C", "#D9D2E9", "#C9DAF8"
@@ -34,8 +33,12 @@ def get_color(course_name):
     return colors[idx]
 
 def main():
-    st.set_page_config(page_title="課程管理系統", layout="wide")
+    st.set_page_config(page_title="課程管理系統", layout="wide", page_icon="📘")
+    st.markdown("<style>body {background-color: white;}</style>", unsafe_allow_html=True)  # Set background to white
     st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
+    
+    # Remove dots from sidebar menu
+    st.sidebar.markdown("<style> .css-ffhzg2 { list-style-type: none; } </style>", unsafe_allow_html=True)
     st.sidebar.title("📌 功能選單")
     action = st.sidebar.radio("", [
         "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
@@ -50,8 +53,8 @@ def main():
         student_name = st.text_input("學生名稱")
         teacher_name = st.text_input("老師名稱")
         date = st.date_input("日期")
-        start_time = st.time_input("開始時間")
-        end_time = st.time_input("結束時間")
+        start_time = st.time_input("開始時間", format="HH:mm")
+        end_time = st.time_input("結束時間", format="HH:mm")
 
         if st.button("新增課程"):
             st_dt = datetime.combine(date, start_time)
@@ -158,7 +161,9 @@ def main():
                 "center": "title",
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
-            "height": 700
+            "height": 700,
+            "eventContent": {"borderRadius": "8px", "padding": "4px", "overflow": "hidden"},  # Add bottom color for events
+            "scrolling": True  # Enable scrolling for long events
         }
         calendar(events=events, options=calendar_options)
 
