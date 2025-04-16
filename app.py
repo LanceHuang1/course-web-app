@@ -124,15 +124,42 @@ def main():
 
     elif action == "⏱️ 時數統計":
         st.subheader("⏱️ 時數統計")
-        total = 0
+        # 時間範圍選擇
+        start_date = st.date_input("開始日期", min_value=datetime.today().date())
+        end_date = st.date_input("結束日期", min_value=start_date)
+
+        # 課程名稱篩選
+        course_names = sorted(set(c["course_name"] for c in courses))  # 所有課程名稱
+        selected_course = st.selectbox("選擇課程名稱", ["全部課程"] + course_names)
+
+        total_hours = 0
+        filtered_courses = []
+        
+        # 根據選擇的時間範圍和課程名稱進行過濾
         for c in courses:
-            try:
-                start = str_to_datetime(c["start_time"])
-                end = str_to_datetime(c["end_time"])
-                total += (end - start).total_seconds() / 3600
-            except:
-                pass
-        st.success(f"📚 所有課程時數統計：{total:.2f} 小時")
+            course_start_time = str_to_datetime(c["start_time"])
+            course_end_time = str_to_datetime(c["end_time"])
+
+            # 過濾時間範圍
+            if start_date <= course_start_time.date() <= end_date:
+                # 過濾課程名稱
+                if selected_course == "全部課程" or c["course_name"] == selected_course:
+                    filtered_courses.append(c)
+                    total_hours += (course_end_time - course_start_time).total_seconds() / 3600
+
+        # 顯示過濾後的課程
+        if filtered_courses:
+            for c in filtered_courses:
+                st.markdown(f"""
+                ### {c['course_name']}
+                - 👤 學生：{c['student_name']} ／ 老師：{c['teacher_name']}
+                - 🕒 {c['start_time']} ~ {c['end_time']}
+                - ⏳ 時數：{(str_to_datetime(c['end_time']) - str_to_datetime(c['start_time'])).total_seconds() / 3600:.2f} 小時
+                """)
+            
+            st.success(f"📚 選擇範圍內的總時數：{total_hours:.2f} 小時")
+        else:
+            st.info("沒有符合條件的課程")
 
     elif action == "📅 月曆視圖":
         st.subheader("📅 月曆視圖")
