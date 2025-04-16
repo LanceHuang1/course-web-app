@@ -125,7 +125,7 @@ def main():
     elif action == "⏱️ 時數統計":
         st.subheader("⏱️ 時數統計")
         # 時間範圍選擇
-        start_date = st.date_input("開始日期", min_value=start_date)
+        start_date = st.date_input("開始日期")
         end_date = st.date_input("結束日期", min_value=start_date)
 
         # 課程名稱篩選
