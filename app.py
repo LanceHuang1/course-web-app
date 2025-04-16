@@ -159,7 +159,7 @@ def main():
             "headerToolbar": {
                 "start": "prev,next today",
                 "center": "title",
-                "end": "timeGridMonth,timeGridWeek,timeGridDay"
+                "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
             "height": 700,
             "scrolling": True  # Enable scrolling for long events
