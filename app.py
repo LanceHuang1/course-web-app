@@ -34,15 +34,14 @@ def get_color(course_name):
 
 def main():
     st.set_page_config(page_title="課程管理系統", layout="wide", page_icon="📘")
-    st.markdown("<style>body {background-color: white;}</style>", unsafe_allow_html=True)  # Set background to white
     st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
     
     # Remove dots from sidebar menu
-    st.sidebar.markdown("<style> .css-ffhzg2 { list-style-type: none; } </style>", unsafe_allow_html=True)
+    st.sidebar.markdown("<style> .cssㄦ-1v3fvcr li { list-style-type: none; } </style>", unsafe_allow_html=True)
     st.sidebar.title("📌 功能選單")
     action = st.sidebar.radio("", [
-        "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
-        "📋 所有課程", "⏱️ 總時數", "📅 月曆視圖"
+        "新增課程", "編輯課程", "刪除課程",
+        "所有課程", "時數統計", "月曆視圖"
     ])
 
     courses = load_data()
@@ -125,8 +124,8 @@ def main():
                 - 🕒 {c['start_time']} ~ {c['end_time']}
                 """)
 
-    elif action == "⏱️ 總時數":
-        st.subheader("⏱️ 總時數")
+    elif action == "⏱️ 時數統計":
+        st.subheader("⏱️ 時數統計")
         total = 0
         for c in courses:
             try:
@@ -135,7 +134,7 @@ def main():
                 total += (end - start).total_seconds() / 3600
             except:
                 pass
-        st.success(f"📚 所有課程總時數：{total:.2f} 小時")
+        st.success(f"📚 所有課程時數統計：{total:.2f} 小時")
 
     elif action == "📅 月曆視圖":
         st.subheader("📅 月曆視圖")
