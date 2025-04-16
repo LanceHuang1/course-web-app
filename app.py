@@ -46,9 +46,15 @@ def main():
 
     if action == "📥 新增課程":
         st.subheader("➕ 新增課程")
-        course_name = st.text_input("課程名稱")
-        student_name = st.text_input("學生名稱")
-        teacher_name = st.text_input("老師名稱")
+        # 獲取過去輸入的課程、學生和老師名稱
+        course_names = sorted(set(c["course_name"] for c in courses))
+        student_names = sorted(set(c["student_name"] for c in courses))
+        teacher_names = sorted(set(c["teacher_name"] for c in courses))
+
+        # 使用 selectbox 或 text_input 來實現自動填充
+        course_name = st.selectbox("課程名稱", [""] + course_names)
+        student_name = st.selectbox("學生名稱", [""] + student_names)
+        teacher_name = st.selectbox("老師名稱", [""] + teacher_names)
         date = st.date_input("日期")
         start_time = st.time_input("開始時間")
         end_time = st.time_input("結束時間")
