@@ -37,7 +37,7 @@ def main():
     st.set_page_config(page_title="課程管理系統", layout="wide")
     st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
     st.sidebar.title("📌 功能選單")
-    action = st.sidebar.radio("", [
+    action = st.sidebar.markdown("", [
         "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
         "📋 所有課程", "⏱️ 總時數", "📅 月曆視圖"
     ])
