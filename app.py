@@ -25,6 +25,7 @@ def str_to_datetime(s):
     return datetime.strptime(s, "%Y/%m/%d %H:%M")
 
 def get_color(course_name):
+    # 依課程名稱決定顏色 (淡色系)
     colors = [
         "#CFE2F3", "#D9EAD3", "#FFF2CC", "#FCE5CD", "#EAD1DC",
         "#D0E0E3", "#F4CCCC", "#F9CB9C", "#D9D2E9", "#C9DAF8"
@@ -33,15 +34,12 @@ def get_color(course_name):
     return colors[idx]
 
 def main():
-    st.set_page_config(page_title="課程管理系統", layout="wide", page_icon="📘")
+    st.set_page_config(page_title="課程管理系統", layout="wide")
     st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
-    
-    # Remove dots from sidebar menu
-    st.sidebar.markdown("<style> .cssㄦ-1v3fvcr li { list-style-type: none; } </style>", unsafe_allow_html=True)
     st.sidebar.title("📌 功能選單")
     action = st.sidebar.radio("", [
-        "新增課程", "編輯課程", "刪除課程",
-        "所有課程", "時數統計", "月曆視圖"
+        "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
+        "📋 所有課程", "⏱️ 時數統計", "📅 月曆視圖"
     ])
 
     courses = load_data()
@@ -160,14 +158,7 @@ def main():
                 "center": "title",
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
-            "height": 700,
-            "eventColor": "#C9DAF8",  # 事件顏色設定
-            "eventTextColor": "#000000",  # 事件文字顏色設定
-            "eventBorderColor": "#C9DAF8",  # 邊框顏色
-            "eventDurationEditable": True,  # 允許修改事件時間
-            "firstDay": 1,  # 設置星期一為每週的第一天
-            "aspectRatio": 1.5,  # 調整日曆格的長寬比
-            "eventClassNames": ["custom-event"],  # 自定義事件樣式類
+            "height": 700
         }
         calendar(events=events, options=calendar_options)
 
