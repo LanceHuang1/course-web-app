@@ -159,10 +159,9 @@ def main():
             "headerToolbar": {
                 "start": "prev,next today",
                 "center": "title",
-                "end": "dayGridMonth,timeGridWeek,timeGridDay"
+                "end": "timeGridMonth,timeGridWeek,timeGridDay"
             },
             "height": 700,
-            "eventContent": {"borderRadius": "8px", "padding": "4px", "overflow": "hidden"},  # Add bottom color for events
             "scrolling": True  # Enable scrolling for long events
         }
         calendar(events=events, options=calendar_options)
