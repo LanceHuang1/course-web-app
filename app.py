@@ -35,19 +35,10 @@ def get_color(course_name):
 
 def main():
     st.set_page_config(page_title="課程管理系統", layout="wide")
-    
-    # 使用自定義的CSS來去除圓點
-    st.markdown("""
-    <style>
-        /* 去除側邊選單的圓點 */
-        .stSidebar .stRadio .stRadioWidget .stRadio label {
-            list-style-type: none;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
     st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
     st.sidebar.title("📌 功能選單")
+    st.sidebar.write("")
+    st.sidebar.write("")
     action = st.sidebar.radio("", [
         "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
         "📋 所有課程", "⏱️ 時數統計", "📅 月曆視圖"
