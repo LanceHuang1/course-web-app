@@ -1,9 +1,10 @@
 import streamlit as st
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from streamlit_calendar import calendar
 import pytz
+import hashlib
 
 DATA_FILE = "courses.json"
 
@@ -17,129 +18,137 @@ def save_data(courses):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(courses, f, ensure_ascii=False, indent=2)
 
-def parse_time(t):
-    return datetime.strptime(t, "%Y/%m/%d %H:%M")
+def parse_time(dt_obj):
+    return dt_obj.strftime("%Y/%m/%d %H:%M")
+
+def str_to_datetime(s):
+    return datetime.strptime(s, "%Y/%m/%d %H:%M")
+
+def get_color(course_name):
+    # 依課程名稱決定顏色 (淡色系)
+    colors = [
+        "#CFE2F3", "#D9EAD3", "#FFF2CC", "#FCE5CD", "#EAD1DC",
+        "#D0E0E3", "#F4CCCC", "#F9CB9C", "#D9D2E9", "#C9DAF8"
+    ]
+    idx = int(hashlib.md5(course_name.encode()).hexdigest(), 16) % len(colors)
+    return colors[idx]
 
 def main():
     st.set_page_config(page_title="課程管理系統", layout="wide")
-    st.title("📘 課程管理系統")
-
-    courses = load_data()
-
-    st.sidebar.title("功能選單")
-    action = st.sidebar.selectbox("請選擇操作", [
+    st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
+    st.sidebar.title("📌 功能選單")
+    action = st.sidebar.radio("", [
         "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
         "📋 所有課程", "⏱️ 總時數", "📅 月曆視圖"
     ])
 
+    courses = load_data()
+
     if action == "📥 新增課程":
-        st.subheader("新增課程")
+        st.subheader("➕ 新增課程")
         course_name = st.text_input("課程名稱")
         student_name = st.text_input("學生名稱")
         teacher_name = st.text_input("老師名稱")
-        start_time = st.text_input("開始時間（YYYY/MM/DD HH:MM）")
-        end_time = st.text_input("結束時間（YYYY/MM/DD HH:MM）")
+        date = st.date_input("日期")
+        start_time = st.time_input("開始時間")
+        end_time = st.time_input("結束時間")
 
-        if st.button("新增"):
-            try:
-                st_time = parse_time(start_time)
-                et_time = parse_time(end_time)
-                if st_time >= et_time:
-                    st.error("結束時間必須晚於開始時間")
-                else:
-                    new_id = max([c["id"] for c in courses], default=0) + 1
-                    courses.append({
-                        "id": new_id,
-                        "course_name": course_name,
-                        "student_name": student_name,
-                        "teacher_name": teacher_name,
-                        "start_time": start_time,
-                        "end_time": end_time
-                    })
-                    save_data(courses)
-                    st.success("課程新增成功！")
-            except:
-                st.error("時間格式錯誤！")
+        if st.button("新增課程"):
+            st_dt = datetime.combine(date, start_time)
+            et_dt = datetime.combine(date, end_time)
+            if st_dt >= et_dt:
+                st.error("❌ 結束時間必須晚於開始時間")
+            else:
+                new_id = max([c["id"] for c in courses], default=0) + 1
+                courses.append({
+                    "id": new_id,
+                    "course_name": course_name,
+                    "student_name": student_name,
+                    "teacher_name": teacher_name,
+                    "start_time": parse_time(st_dt),
+                    "end_time": parse_time(et_dt)
+                })
+                save_data(courses)
+                st.success("✅ 課程新增成功")
 
     elif action == "📝 編輯課程":
-        st.subheader("編輯課程")
+        st.subheader("🛠️ 編輯課程")
         if not courses:
             st.info("目前沒有課程")
         else:
-            options = {f"{c['id']}: {c['course_name']}": c for c in courses}
-            selected = st.selectbox("選擇課程", list(options.keys()))
-            course = options[selected]
-
+            course_dict = {f'{c["id"]}: {c["course_name"]}': c for c in courses}
+            selected = st.selectbox("選擇課程", list(course_dict.keys()))
+            course = course_dict[selected]
             course["course_name"] = st.text_input("課程名稱", course["course_name"])
             course["student_name"] = st.text_input("學生名稱", course["student_name"])
             course["teacher_name"] = st.text_input("老師名稱", course["teacher_name"])
-            course["start_time"] = st.text_input("開始時間", course["start_time"])
-            course["end_time"] = st.text_input("結束時間", course["end_time"])
+
+            dt = str_to_datetime(course["start_time"])
+            et = str_to_datetime(course["end_time"])
+            date = st.date_input("日期", dt.date())
+            start_time = st.time_input("開始時間", dt.time())
+            end_time = st.time_input("結束時間", et.time())
 
             if st.button("儲存變更"):
-                try:
-                    stime = parse_time(course["start_time"])
-                    etime = parse_time(course["end_time"])
-                    if stime >= etime:
-                        st.error("結束時間需晚於開始")
-                    else:
-                        save_data(courses)
-                        st.success("課程更新成功！")
-                except:
-                    st.error("時間格式錯誤！")
+                if start_time >= end_time:
+                    st.error("❌ 結束時間需晚於開始")
+                else:
+                    course["start_time"] = parse_time(datetime.combine(date, start_time))
+                    course["end_time"] = parse_time(datetime.combine(date, end_time))
+                    save_data(courses)
+                    st.success("✅ 課程更新成功")
 
     elif action == "🗑️ 刪除課程":
-        st.subheader("刪除課程")
+        st.subheader("🗑️ 刪除課程")
         if not courses:
             st.info("目前沒有課程")
         else:
-            options = {f"{c['id']}: {c['course_name']}": c for c in courses}
-            selected = st.selectbox("選擇課程刪除", list(options.keys()))
+            course_dict = {f'{c["id"]}: {c["course_name"]}': c for c in courses}
+            selected = st.selectbox("選擇要刪除的課程", list(course_dict.keys()))
             if st.button("刪除"):
-                courses.remove(options[selected])
+                courses.remove(course_dict[selected])
                 save_data(courses)
-                st.success("課程已刪除")
+                st.success("✅ 課程已刪除")
 
     elif action == "📋 所有課程":
-        st.subheader("所有課程")
-        if courses:
+        st.subheader("📋 所有課程")
+        if not courses:
+            st.info("目前沒有課程")
+        else:
             for c in courses:
                 st.markdown(f"""
                 ### {c['course_name']}
-                - 👤 學生：{c['student_name']} / 老師：{c['teacher_name']}
-                - 🕒 {c['start_time']} 到 {c['end_time']}
+                - 👤 學生：{c['student_name']} ／ 老師：{c['teacher_name']}
+                - 🕒 {c['start_time']} ~ {c['end_time']}
                 """)
-        else:
-            st.info("目前沒有任何課程。")
 
     elif action == "⏱️ 總時數":
-        st.subheader("加總所有課程時數")
+        st.subheader("⏱️ 總時數")
         total = 0
         for c in courses:
             try:
-                stime = parse_time(c["start_time"])
-                etime = parse_time(c["end_time"])
-                total += (etime - stime).total_seconds() / 3600
+                start = str_to_datetime(c["start_time"])
+                end = str_to_datetime(c["end_time"])
+                total += (end - start).total_seconds() / 3600
             except:
                 pass
-        st.success(f"總時數為 {total:.2f} 小時")
+        st.success(f"📚 所有課程總時數：{total:.2f} 小時")
 
     elif action == "📅 月曆視圖":
-        st.subheader("📅 課程月曆")
+        st.subheader("📅 月曆視圖")
         events = []
         for c in courses:
             try:
                 events.append({
                     "title": f"{c['course_name']} ({c['student_name']})",
-                    "start": parse_time(c["start_time"]).isoformat(),
-                    "end": parse_time(c["end_time"]).isoformat(),
-                    "extendedProps": {
-                        "老師": c["teacher_name"],
-                        "學生": c["student_name"]
-                    }
+                    "start": str_to_datetime(c["start_time"]).isoformat(),
+                    "end": str_to_datetime(c["end_time"]).isoformat(),
+                    "backgroundColor": get_color(c["course_name"]),
+                    "borderColor": get_color(c["course_name"]),
+                    "textColor": "#000000"
                 })
-            except Exception as e:
-                print("解析時間錯誤：", e)
+            except:
+                pass
 
         calendar_options = {
             "initialView": "dayGridMonth",
@@ -148,9 +157,9 @@ def main():
                 "start": "prev,next today",
                 "center": "title",
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
-            }
+            },
+            "height": 700
         }
-
         calendar(events=events, options=calendar_options)
 
 if __name__ == "__main__":
