@@ -53,8 +53,8 @@ def main():
         student_name = st.text_input("學生名稱")
         teacher_name = st.text_input("老師名稱")
         date = st.date_input("日期")
-        start_time = st.time_input("開始時間", format="HH:mm")
-        end_time = st.time_input("結束時間", format="HH:mm")
+        start_time = st.time_input("開始時間")
+        end_time = st.time_input("結束時間")
 
         if st.button("新增課程"):
             st_dt = datetime.combine(date, start_time)
