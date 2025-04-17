@@ -207,6 +207,9 @@ def main():
         custom_hooks=["eventClick", "eventDrop", "eventResize"],
         key="course_calendar"
         )
+        
+        # 顯示 updated_event 的內容來檢查它的結構
+        st.write("DEBUG updated_event:", updated_event)
 
         # 點擊事件：顯示詳細資料
         if updated_event and "event" in updated_event:
