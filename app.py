@@ -203,9 +203,10 @@ def main():
                     "backgroundColor": get_color(c["course_name"]),
                     "borderColor": get_color(c["course_name"]),
                     "textColor": "#000000"
+                    "id": str(c["id"])  # 確保事件有 id
                 })
-            except:
-                pass
+            except Exception as ex:
+                st.error(f"❌ 無法處理課程：{ex}")
         
         calendar_options = {
             "initialView": "dayGridMonth",
@@ -262,6 +263,24 @@ def main():
                     with col2:
                         if st.button("📄 複製課程", key="copy_course_trigger"):
                             st.session_state["copy_mode"] = target_course
+                            
+        # 拖曳或縮放事件：更新資料
+        if updated_event and "event" in updated_event and updated_event["trigger"] in ["eventDrop", "eventResize"]:
+            e = updated_event["event"]
+            try:
+                event_id = e["id"]
+                target_course = next((c for c in courses if str(c["id"]) == event_id), None)
+    
+                if target_course:
+                    # 更新課程的開始和結束時間
+                    target_course["start_time"] = parse_time(datetime.fromisoformat(e["start"]))
+                    target_course["end_time"] = parse_time(datetime.fromisoformat(e["end"]))
+                    save_data(courses)
+                    st.success("✅ 課程時間已更新")
+                else:
+                    st.error("❌ 找不到該課程")
+            except Exception as ex:
+                st.error(f"❌ 無法更新課程時間：{ex}")
 
         # 顯示複製課程用的表單（如果使用者剛按下「複製課程」）
         if "copy_mode" in st.session_state and st.session_state["copy_mode"]:
