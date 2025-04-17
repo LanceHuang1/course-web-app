@@ -70,16 +70,25 @@ def main():
                 st.error("❌ 結束時間必須晚於開始時間")
             else:
                 new_id = max([c["id"] for c in courses], default=0) + 1
-                courses.append({
+                new_course = {
                     "id": new_id,
                     "course_name": course_name,
                     "student_name": student_name,
                     "teacher_name": teacher_name,
                     "start_time": parse_time(st_dt),
                     "end_time": parse_time(et_dt)
-                })
+                }
+                courses.append(new_course)
                 save_data(courses)
                 st.success("✅ 課程新增成功")
+                
+                # 重置表單欄位
+                st.session_state["course_name_input"] = ""
+                st.session_state["student_name_input"] = ""
+                st.session_state["teacher_name_input"] = ""
+                st.session_state["course_date_input"] = datetime.now().date()
+                st.session_state["start_time_input"] = datetime.now().time()
+                st.session_state["end_time_input"] = (datetime.now() + timedelta(hours=1)).time()
 
     elif action == "📝 編輯課程":
         st.subheader("🛠️ 編輯課程")
