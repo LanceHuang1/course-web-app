@@ -195,9 +195,94 @@ def main():
                 "center": "title",
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
+            "editable": True,
+            "eventDurationEditable": True,
+            "eventStartEditable": True,
             "height": 700,
         }
-        calendar(events=events, options=calendar_options)
+
+        updated_event = calendar(
+        events=events,
+        options=calendar_options,
+        custom_hooks=["eventClick", "eventDrop", "eventResize"],
+        key="course_calendar"
+        )
+
+        # 點擊事件：顯示詳細資料
+        if updated_event and "event" in updated_event:
+            e = updated_event["event"]
+            event_id = e["id"]
+            target_course = next((c for c in courses if str(c["id"]) == event_id), None)
+
+            if updated_event["trigger"] == "eventClick" and target_course:
+                with st.expander(f"✏️ 編輯課程：{target_course['course_name']} ({target_course['student_name']})", expanded=True):
+                    course_name = st.text_input("課程名稱", target_course["course_name"], key="edit_course_name")
+                    student_name = st.text_input("學生名稱", target_course["student_name"], key="edit_student_name")
+                    teacher_name = st.text_input("老師名稱", target_course["teacher_name"], key="edit_teacher_name")
+
+                    start_dt = str_to_datetime(target_course["start_time"])
+                    end_dt = str_to_datetime(target_course["end_time"])
+                    date = st.date_input("日期", start_dt.date(), key="edit_date")
+                    start_time = st.time_input("開始時間", start_dt.time(), key="edit_start")
+                    end_time = st.time_input("結束時間", end_dt.time(), key="edit_end")
+
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button("💾 儲存修改", key="save_edit"):
+                            target_course["course_name"] = course_name
+                            target_course["student_name"] = student_name
+                            target_course["teacher_name"] = teacher_name
+                            target_course["start_time"] = parse_time(datetime.combine(date, start_time))
+                            target_course["end_time"] = parse_time(datetime.combine(date, end_time))
+                            save_data(courses)
+                            st.success("✅ 課程已更新")
+        
+                    with col2:
+                        if st.button("📄 複製課程", key="copy_course_trigger"):
+                            st.session_state["copy_mode"] = target_course
+
+            # 顯示複製課程用的表單（如果使用者剛按下「複製課程」）
+            if "copy_mode" in st.session_state and st.session_state["copy_mode"]:
+                copy_target = st.session_state["copy_mode"]
+                st.markdown("## 🧬 複製課程")
+                copy_date = st.date_input("新日期", datetime.now().date(), key="copy_date")
+                copy_start = st.time_input("新開始時間", datetime.now().time(), key="copy_start")
+                copy_end = st.time_input("新結束時間", (datetime.now() + timedelta(hours=1)).time(), key="copy_end")
+
+                if st.button("✅ 建立複製課程", key="confirm_copy"):
+                    new_id = max([c["id"] for c in courses], default=0) + 1
+                    new_course = {
+                        "id": new_id,
+                        "course_name": copy_target["course_name"],
+                        "student_name": copy_target["student_name"],
+                        "teacher_name": copy_target["teacher_name"],
+                        "start_time": parse_time(datetime.combine(copy_date, copy_start)),
+                        "end_time": parse_time(datetime.combine(copy_date, copy_end)),
+                    }
+                    courses.append(new_course)
+                    save_data(courses)
+                    st.success("🎉 已成功複製課程")
+                    st.session_state["copy_mode"] = None  # 重置狀態
+
+            elif updated_event["trigger"] in ["eventDrop", "eventResize"] and target_course:
+                try:
+                    target_course["start_time"] = parse_time(datetime.fromisoformat(e["start"]))
+                    target_course["end_time"] = parse_time(datetime.fromisoformat(e["end"]))
+                    save_data(courses)
+                    st.success("✅ 課程時間已更新")
+                except Exception as ex:
+                    st.error(f"❌ 無法更新時間：{ex}")
+
+        # 拖曳或縮放事件：更新資料
+        if updated_event and "event" in updated_event and updated_event["trigger"] in ["eventDrop", "eventResize"]:
+            e = updated_event["event"]
+            for c in courses:
+                if str(c["id"]) == e["id"]:
+                    c["start_time"] = parse_time(datetime.fromisoformat(e["start"]))
+                    c["end_time"] = parse_time(datetime.fromisoformat(e["end"]))
+                    break
+            save_data(courses)
+            st.success("✅ 課程時間已更新")
 
 if __name__ == "__main__":
     main()
