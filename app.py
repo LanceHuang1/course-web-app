@@ -55,13 +55,25 @@ def main():
         student_names = sorted(set(c["student_name"] for c in courses))
         teacher_names = sorted(set(c["teacher_name"] for c in courses))
 
-        # 使用 selectbox 或 text_input 來實現自動填充
+        # 讓使用者輸入新的名稱，或選擇已存在的名稱
         course_name = st.selectbox("課程名稱", [""] + course_names)
+        new_course_name = st.text_input("如果是新課程，請輸入課程名稱")
+
         student_name = st.selectbox("學生名稱", [""] + student_names)
+        new_student_name = st.text_input("如果是新學生，請輸入學生名稱")
+
         teacher_name = st.selectbox("老師名稱", [""] + teacher_names)
+        new_teacher_name = st.text_input("如果是新老師，請輸入老師名稱")
+
+        # 日期和時間
         date = st.date_input("日期")
         start_time = st.time_input("開始時間")
         end_time = st.time_input("結束時間")
+
+        # 如果使用者提供了新的名稱，將其使用
+        course_name = new_course_name if new_course_name else course_name
+        student_name = new_student_name if new_student_name else student_name
+        teacher_name = new_teacher_name if new_teacher_name else teacher_name
 
         if st.button("新增課程"):
             st_dt = datetime.combine(date, start_time)
@@ -81,7 +93,6 @@ def main():
                 courses.append(new_course)
                 save_data(courses)
                 st.success("✅ 課程新增成功")
-                
                 # 重置表單欄位
                 st.session_state["course_name_input"] = ""
                 st.session_state["student_name_input"] = ""
