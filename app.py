@@ -304,26 +304,6 @@ def main():
                 save_data(courses)
                 st.success("🎉 已成功複製課程")
                 st.session_state["copy_mode"] = None  # 重置狀態
-        
-        elif updated_event["trigger"] in ["eventDrop", "eventResize"] and target_course:
-            try:
-                target_course["start_time"] = parse_time(datetime.fromisoformat(e["start"]))
-                target_course["end_time"] = parse_time(datetime.fromisoformat(e["end"]))
-                save_data(courses)
-                st.success("✅ 課程時間已更新")
-            except Exception as ex:
-                st.error(f"❌ 無法更新時間：{ex}")
-
-        # 拖曳或縮放事件：更新資料
-        if updated_event and "event" in updated_event and updated_event["trigger"] in ["eventDrop", "eventResize"]:
-            e = updated_event["event"]
-            for c in courses:
-                if str(c["id"]) == e["id"]:
-                    c["start_time"] = parse_time(datetime.fromisoformat(e["start"]))
-                    c["end_time"] = parse_time(datetime.fromisoformat(e["end"]))
-                    break
-            save_data(courses)
-            st.success("✅ 課程時間已更新")
 
 if __name__ == "__main__":
     main()
