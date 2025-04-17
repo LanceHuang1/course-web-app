@@ -39,41 +39,35 @@ def main():
     st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
     # 功能選單（改為選單樣式）
     with st.sidebar:
-        action = option_menu("📌 功能選單", [
-            "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
-            "📋 所有課程", "⏱️ 時數統計", "📅 Calendar"
+        action = option_menu("功能選單", [
+            "新增課程", "編輯課程", "刪除課程",
+            "所有課程", "時數統計", "Calendar"
         ],
         icons=["plus", "pencil", "trash", "list", "clock", "calendar"],
         menu_icon="cast", default_index=0)
 
     courses = load_data()
 
-    if action == "📥 新增課程":
+    if action == "新增課程":
         st.subheader("➕ 新增課程")
-        # 獲取過去輸入的課程、學生和老師名稱
-        course_names = sorted(set(c["course_name"] for c in courses))
-        student_names = sorted(set(c["student_name"] for c in courses))
-        teacher_names = sorted(set(c["teacher_name"] for c in courses))
-
-        # 讓使用者輸入新的名稱，或選擇已存在的名稱
-        course_name = st.selectbox("課程名稱", [""] + course_names)
-        new_course_name = st.text_input("如果是新課程，請輸入課程名稱")
-
-        student_name = st.selectbox("學生名稱", [""] + student_names)
-        new_student_name = st.text_input("如果是新學生，請輸入學生名稱")
-
-        teacher_name = st.selectbox("老師名稱", [""] + teacher_names)
-        new_teacher_name = st.text_input("如果是新老師，請輸入老師名稱")
+        
+        # 使用 selectbox 並結合輸入框來達到合併效果
+        course_name = st.selectbox("課程名稱", [""] + course_names + ["新增課程"])
+        if course_name == "新增課程":
+            course_name = st.text_input("請輸入新的課程名稱")
+        
+        student_name = st.selectbox("學生名稱", [""] + student_names + ["新增學生"])
+        if student_name == "新增學生":
+            student_name = st.text_input("請輸入新的學生名稱")
+        
+        teacher_name = st.selectbox("老師名稱", [""] + teacher_names + ["新增老師"])
+        if teacher_name == "新增老師":
+            teacher_name = st.text_input("請輸入新的老師名稱")
 
         # 日期和時間
         date = st.date_input("日期")
         start_time = st.time_input("開始時間")
         end_time = st.time_input("結束時間")
-
-        # 如果使用者提供了新的名稱，將其使用
-        course_name = new_course_name if new_course_name else course_name
-        student_name = new_student_name if new_student_name else student_name
-        teacher_name = new_teacher_name if new_teacher_name else teacher_name
 
         if st.button("新增課程"):
             st_dt = datetime.combine(date, start_time)
@@ -93,6 +87,7 @@ def main():
                 courses.append(new_course)
                 save_data(courses)
                 st.success("✅ 課程新增成功")
+                
                 # 重置表單欄位
                 st.session_state["course_name_input"] = ""
                 st.session_state["student_name_input"] = ""
@@ -101,7 +96,7 @@ def main():
                 st.session_state["start_time_input"] = datetime.now().time()
                 st.session_state["end_time_input"] = (datetime.now() + timedelta(hours=1)).time()
 
-    elif action == "📝 編輯課程":
+    elif action == "編輯課程":
         st.subheader("🛠️ 編輯課程")
         if not courses:
             st.info("目前沒有課程")
@@ -128,8 +123,8 @@ def main():
                     save_data(courses)
                     st.success("✅ 課程更新成功")
 
-    elif action == "🗑️ 刪除課程":
-        st.subheader("🗑️ 刪除課程")
+    elif action == "刪除課程":
+        st.subheader("刪除課程")
         if not courses:
             st.info("目前沒有課程")
         else:
@@ -140,8 +135,8 @@ def main():
                 save_data(courses)
                 st.success("✅ 課程已刪除")
 
-    elif action == "📋 所有課程":
-        st.subheader("📋 所有課程")
+    elif action == "所有課程":
+        st.subheader("所有課程")
         if not courses:
             st.info("目前沒有課程")
         else:
@@ -152,8 +147,8 @@ def main():
                 - 🕒 {c['start_time']} ~ {c['end_time']}
                 """)
 
-    elif action == "⏱️ 時數統計":
-        st.subheader("⏱️ 時數統計")
+    elif action == "時數統計":
+        st.subheader("時數統計")
         # 時間範圍選擇
         start_date = st.date_input("開始日期")
         end_date = st.date_input("結束日期", min_value=start_date)
@@ -191,8 +186,8 @@ def main():
         else:
             st.info("沒有符合條件的課程")
 
-    elif action == "📅 Calendar":
-        st.subheader("📅 Calendar")
+    elif action == "Calendar":
+        st.subheader("Calendar")
         events = []
         for c in courses:
             try:
