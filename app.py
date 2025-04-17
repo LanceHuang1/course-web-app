@@ -45,7 +45,6 @@ def main():
         ],
         icons=["plus", "pencil", "trash", "list", "clock", "calendar"],
         menu_icon="cast", default_index=0)
-    ])
 
     courses = load_data()
 
