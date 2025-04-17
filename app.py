@@ -196,14 +196,6 @@ def main():
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
             "height": 700,
-            "eventDidMount": """
-                function(info) {
-                    info.el.style.whiteSpace = 'normal';
-                    info.el.style.overflowWrap = 'break-word';
-                    info.el.style.fontFamily = 'Verdana';
-                    info.el.style.fontSize = '14pt';
-                }
-            """
         }
         calendar(events=events, options=calendar_options)
 
