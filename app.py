@@ -195,7 +195,7 @@ def main():
                 "center": "title",
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
-            "height": 700
+            "height": 700,
             "eventDidMount": """
                 function(info) {
                 info.el.style.whiteSpace = 'normal';
