@@ -194,6 +194,10 @@ def main():
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
             "height": 700
+            # 強制換行文字，當文字過長時自動換行
+            "eventRender": {
+            "textOverflow": "ellipsis",  # 這樣做可以防止文字溢出
+            "whiteSpace": "normal"  # 讓文字不被隱藏，並且強制換行
         }
         calendar(events=events, options=calendar_options)
 
