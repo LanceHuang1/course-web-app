@@ -202,7 +202,7 @@ def main():
                     "end": str_to_datetime(c["end_time"]).isoformat(),
                     "backgroundColor": get_color(c["course_name"]),
                     "borderColor": get_color(c["course_name"]),
-                    "textColor": "#000000"
+                    "textColor": "#000000",
                     "id": str(c["id"])  # 確保事件有 id
                 })
             except Exception as ex:
