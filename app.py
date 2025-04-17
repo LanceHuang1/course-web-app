@@ -50,6 +50,11 @@ def main():
 
     if action == "新增課程":
         st.subheader("➕ 新增課程")
+
+        # 確保課程名稱、學生名稱、老師名稱的定義在 selectbox 之前
+        course_names = sorted(set(c["course_name"] for c in courses))
+        student_names = sorted(set(c["student_name"] for c in courses))
+        teacher_names = sorted(set(c["teacher_name"] for c in courses))
         
         # 使用 selectbox 並結合輸入框來達到合併效果
         course_name = st.selectbox("課程名稱", [""] + course_names + ["新增課程"])
