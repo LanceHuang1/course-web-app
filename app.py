@@ -1,13 +1,17 @@
 import streamlit as st
 import json
-from datetime import datetime, timedelta
 import os
-from streamlit_calendar import calendar
+from datetime import datetime, date, time
 from streamlit_option_menu import option_menu
-import pytz
-import hashlib
+from streamlit_calendar import calendar
 
 DATA_FILE = "courses.json"
+
+def parse_time(dt):
+    return dt.strftime("%Y-%m-%d %H:%M")
+
+def str_to_datetime(s):
+    return datetime.strptime(s, "%Y-%m-%d %H:%M")
 
 def load_data():
     if not os.path.exists(DATA_FILE):
@@ -19,25 +23,15 @@ def save_data(courses):
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(courses, f, ensure_ascii=False, indent=2)
 
-def parse_time(dt_obj):
-    return dt_obj.strftime("%Y/%m/%d %H:%M")
-
-def str_to_datetime(s):
-    return datetime.strptime(s, "%Y/%m/%d %H:%M")
-
-def get_color(course_name):
-    # 依課程名稱決定顏色 (淡色系)
-    colors = [
-        "#CFE2F3", "#D9EAD3", "#FFF2CC", "#FCE5CD", "#EAD1DC",
-        "#D0E0E3", "#F4CCCC", "#F9CB9C", "#D9D2E9", "#C9DAF8"
-    ]
-    idx = int(hashlib.md5(course_name.encode()).hexdigest(), 16) % len(colors)
-    return colors[idx]
+def get_color(name):
+    import hashlib
+    h = hashlib.md5(name.encode()).hexdigest()
+    return f"#{h[:6]}55"
 
 def main():
     st.set_page_config(page_title="課程管理系統", layout="wide")
     st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
-    # 功能選單（改為選單樣式）
+
     with st.sidebar:
         action = option_menu("📌 功能選單", [
             "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
@@ -50,12 +44,10 @@ def main():
 
     if action == "📥 新增課程":
         st.subheader("➕ 新增課程")
-        # 獲取過去輸入的課程、學生和老師名稱
         course_names = sorted(set(c["course_name"] for c in courses))
         student_names = sorted(set(c["student_name"] for c in courses))
         teacher_names = sorted(set(c["teacher_name"] for c in courses))
 
-        # 使用 selectbox 或 text_input 來實現自動填充
         course_name = st.selectbox("課程名稱", [""] + course_names)
         student_name = st.selectbox("學生名稱", [""] + student_names)
         teacher_name = st.selectbox("老師名稱", [""] + teacher_names)
@@ -134,30 +126,22 @@ def main():
 
     elif action == "⏱️ 時數統計":
         st.subheader("⏱️ 時數統計")
-        # 時間範圍選擇
         start_date = st.date_input("開始日期")
         end_date = st.date_input("結束日期", min_value=start_date)
-
-        # 課程名稱篩選
-        course_names = sorted(set(c["course_name"] for c in courses))  # 所有課程名稱
+        course_names = sorted(set(c["course_name"] for c in courses))
         selected_course = st.selectbox("選擇課程名稱", ["全部課程"] + course_names)
 
         total_hours = 0
         filtered_courses = []
-        
-        # 根據選擇的時間範圍和課程名稱進行過濾
+
         for c in courses:
             course_start_time = str_to_datetime(c["start_time"])
             course_end_time = str_to_datetime(c["end_time"])
-
-            # 過濾時間範圍
             if start_date <= course_start_time.date() <= end_date:
-                # 過濾課程名稱
                 if selected_course == "全部課程" or c["course_name"] == selected_course:
                     filtered_courses.append(c)
                     total_hours += (course_end_time - course_start_time).total_seconds() / 3600
 
-        # 顯示過濾後的課程
         if filtered_courses:
             for c in filtered_courses:
                 st.markdown(f"""
@@ -166,7 +150,6 @@ def main():
                 - 🕒 {c['start_time']} ~ {c['end_time']}
                 - ⏳ 時數：{(str_to_datetime(c['end_time']) - str_to_datetime(c['start_time'])).total_seconds() / 3600:.2f} 小時
                 """)
-            
             st.success(f"📚 選擇範圍內的總時數：{total_hours:.2f} 小時")
         else:
             st.info("沒有符合條件的課程")
@@ -198,10 +181,10 @@ def main():
             "height": 700,
             "eventDidMount": """
                 function(info) {
-                info.el.style.whiteSpace = 'normal';
-                info.el.style.overflowWrap = 'break-word';
-                info.el.style.fontFamily = 'Verdana';
-                info.el.style.fontSize = '14pt';
+                    info.el.style.whiteSpace = 'normal';
+                    info.el.style.overflowWrap = 'break-word';
+                    info.el.style.fontFamily = 'Verdana';
+                    info.el.style.fontSize = '14pt';
                 }
             """
         }
