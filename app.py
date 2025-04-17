@@ -3,6 +3,7 @@ import json
 from datetime import datetime, timedelta
 import os
 from streamlit_calendar import calendar
+from streamlit_option_menu import option_menu
 import pytz
 import hashlib
 
@@ -36,12 +37,14 @@ def get_color(course_name):
 def main():
     st.set_page_config(page_title="課程管理系統", layout="wide")
     st.markdown("<h1 style='color:#3c3c3c;'>📘 課程管理系統</h1>", unsafe_allow_html=True)
-    st.sidebar.title("📌 功能選單")
-    st.sidebar.write("")
-    st.sidebar.write("")
-    action = st.sidebar.radio("", [
-        "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
-        "📋 所有課程", "⏱️ 時數統計", "📅 月曆視圖"
+    # 功能選單（改為選單樣式）
+    with st.sidebar:
+        action = option_menu("📌 功能選單", [
+            "📥 新增課程", "📝 編輯課程", "🗑️ 刪除課程",
+            "📋 所有課程", "⏱️ 時數統計", "📅 月曆視圖"
+        ],
+        icons=["plus", "pencil", "trash", "list", "clock", "calendar"],
+        menu_icon="cast", default_index=0)
     ])
 
     courses = load_data()
@@ -194,10 +197,14 @@ def main():
                 "end": "dayGridMonth,timeGridWeek,timeGridDay"
             },
             "height": 700
-            # 強制換行文字，當文字過長時自動換行
-            "eventRender": {
-            "textOverflow": "ellipsis",  # 這樣做可以防止文字溢出
-            "whiteSpace": "normal"  # 讓文字不被隱藏，並且強制換行
+            "eventDidMount": """
+                function(info) {
+                info.el.style.whiteSpace = 'normal';
+                info.el.style.overflowWrap = 'break-word';
+                info.el.style.fontFamily = 'Verdana';
+                info.el.style.fontSize = '14pt';
+                }
+            """
         }
         calendar(events=events, options=calendar_options)
 
